@@ -21,6 +21,13 @@ minSdk 26 (Android 8.0) / targetSdk 35。
 Actions の実行結果ページ下部「Artifacts」から `SplitLauncher-debug`（APK入りzip）をダウンロードできます。
 Actions タブの「Build APK」→「Run workflow」で手動実行も可能です。
 
+## Android 7〜12 での分割起動（重要）
+Android 12 以下では、アプリから全画面状態の分割画面を直接開始する方法がないため、
+ユーザー補助サービス「分割ランチャー 比率調整」が **必須** です（設定 → ユーザー補助 → ON）。
+起動時は次の順で自動操作します: 左アプリを起動 → 分割画面に切り替え → 右アプリを下/右側に起動 → 比率調整。
+各ステップの待ち時間は `DividerAccessibilityService` の `APP_START_DELAY_MS` / `STEP_DELAY_MS` で調整できます。
+Android 12L 以降はユーザー補助なしでも分割起動できます（比率調整には必要）。
+
 ## 分割比率について（重要）
 Android には、他のアプリを分割表示する際の比率を指定する公開 API がありません。そのため:
 
