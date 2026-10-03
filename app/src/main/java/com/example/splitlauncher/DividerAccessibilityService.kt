@@ -63,7 +63,10 @@ class DividerAccessibilityService : AccessibilityService() {
                 // 2) 分割画面切替 → 前面の左アプリが左（上）側に固定される
                 toggleSplit(retry = true) {
                     // 3) 右（下）側に右アプリを起動
-                    if (!startApp(right, adjacent = true)) return@toggleSplit
+                    //    Android 9 以前は分割中に LAUNCH_ADJACENT を付けると、フォーカスがアプリ一覧側にあるため
+                    //    固定側（左/上）に起動されて左アプリが置き換わってしまう。
+                    //    通常起動ならアプリ一覧が出ている側（右/下）に入る。
+                    if (!startApp(right, adjacent = false)) return@toggleSplit
                     // 4) 比率を調整
                     scheduleDrag(ratio, STEP_DELAY_MS)
                 }
