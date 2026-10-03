@@ -27,6 +27,7 @@ import android.widget.Toast
 class DividerAccessibilityService : AccessibilityService() {
 
     private val handler = Handler(Looper.getMainLooper())
+    private val prefs by lazy { Prefs(this) }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -46,8 +47,23 @@ class DividerAccessibilityService : AccessibilityService() {
     // Android 7〜12 用: 分割画面の開始手順
     // ---------------------------------------------------------------------
 
-    private fun runLegacySplit(left: ComponentName, right: ComponentName, ratio: Int) {
+    /**
+     * @param allowRetry 配置が逆だった場合に1回だけ順序を入れ替えてやり直すためのフラグ
+     */
+    private fun runLegacySplit(
+        left: ComponentName,
+        right: ComponentName,
+        ratio: Int,
+        allowRetry: Boolean = true,
+    ) {
         handler.removeCallbacksAndMessages(null)
+
+        // 固定側（最初に起動したアプリが入る側）は端末・画面の向きで左右（上下）が変わる。
+        // 前回の検出結果に従い、固定側が右/下になる向きなら右アプリを先に起動する。
+        val rotation = currentRotation()
+        val reversed = prefs.isDockReversed(rotation)
+        val first = if (reversed) right else left
+        val second = if (reversed) left else right
 
         // 0) すでに分割画面なら一度解除してから始める（切替操作は ON/OFF のトグルなので）
         val preDelay = if (findDivider() != null) {
@@ -56,22 +72,56 @@ class DividerAccessibilityService : AccessibilityService() {
         } else 0L
 
         handler.postDelayed({
-            // 1) 左（上）のアプリを全画面で起動
-            if (!startApp(left, adjacent = false)) return@postDelayed
+            // 1) 固定側に入れるアプリを全画面で起動
+            if (!startApp(first, adjacent = false)) return@postDelayed
 
             handler.postDelayed({
-                // 2) 分割画面切替 → 前面の左アプリが左（上）側に固定される
+                // 2) 分割画面切替 → 前面のアプリが固定側に入る
                 toggleSplit(retry = true) {
-                    // 3) 右（下）側に右アプリを起動
+                    // 2.5) 実際に固定側が左/上か右/下かを検出し、想定と逆なら覚えてやり直す
+                    val firstAtStart = detectIsAtStartSide(first.packageName)
+                    if (firstAtStart != null && firstAtStart == reversed) {
+                        prefs.setDockReversed(rotation, !reversed)
+                        if (allowRetry) {
+                            performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN) // 分割を解除
+                            handler.postDelayed({
+                                runLegacySplit(left, right, ratio, allowRetry = false)
+                            }, STEP_DELAY_MS)
+                            return@toggleSplit
+                        }
+                    }
+
+                    // 3) もう一方の側（アプリ一覧が出ている側）に2つ目のアプリを起動
                     //    Android 9 以前は分割中に LAUNCH_ADJACENT を付けると、フォーカスがアプリ一覧側にあるため
-                    //    固定側（左/上）に起動されて左アプリが置き換わってしまう。
-                    //    通常起動ならアプリ一覧が出ている側（右/下）に入る。
-                    if (!startApp(right, adjacent = false)) return@toggleSplit
+                    //    固定側に起動されて1つ目のアプリが置き換わってしまう。通常起動ならアプリ一覧側に入る。
+                    if (!startApp(second, adjacent = false)) return@toggleSplit
                     // 4) 比率を調整
                     scheduleDrag(ratio, STEP_DELAY_MS)
                 }
             }, APP_START_DELAY_MS)
         }, preDelay)
+    }
+
+    /**
+     * 指定パッケージのウィンドウが、ディバイダーより左（左右分割時）または上（上下分割時）にあるか。
+     * 判定できなければ null。
+     */
+    private fun detectIsAtStartSide(packageName: String): Boolean? = runCatching {
+        val divider = findDivider() ?: return@runCatching null
+        val appWindows = windows.filter { it.type == AccessibilityWindowInfo.TYPE_APPLICATION }
+        // まずアプリ名で探し、取れなければ「フォーカスの無いアプリウィンドウ」を固定側とみなす
+        // （分割直後はもう一方の側のアプリ一覧にフォーカスがあるため）
+        val window = appWindows.firstOrNull { it.root?.packageName?.toString() == packageName }
+            ?: appWindows.singleOrNull { !it.isFocused && !it.isActive }
+            ?: return@runCatching null
+        val bounds = Rect().also { window.getBoundsInScreen(it) }
+        val leftRightSplit = divider.height() > divider.width()
+        if (leftRightSplit) bounds.centerX() < divider.centerX() else bounds.centerY() < divider.centerY()
+    }.getOrNull()
+
+    private fun currentRotation(): Int {
+        val dm = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        return dm.getDisplay(Display.DEFAULT_DISPLAY)?.rotation ?: 0
     }
 
     private fun toggleSplit(retry: Boolean, onSplit: () -> Unit) {

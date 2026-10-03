@@ -5,6 +5,7 @@
     <string name="label_left">左側のアプリ（縦画面では上）</string>
     <string name="label_right">右側のアプリ（縦画面では下）</string>
     <string name="swap">⇅ 左右を入れ替え</string>
+    <string name="landscape_reverse">横画面で左右が逆になる場合はON（通常は自動判定）</string>
     <string name="label_ratio">分割比率</string>
     <string name="ratio_format">左 %1$d%% : 右 %2$d%%</string>
     <string name="label_mode">起動方法</string>
@@ -20,7 +21,7 @@
     <string name="a11y_off_required">⚠ 分割起動（ユーザー補助）: 無効 — このAndroidバージョンでは、分割画面で起動するために必須です。下のボタンから「分割ランチャー 比率調整」をONにしてください</string>
     <string name="a11y_open_settings">ユーザー補助の設定を開く</string>
     <string name="a11y_service_label">分割ランチャー 比率調整</string>
-    <string name="a11y_service_description">指定した2つのアプリを分割画面で起動するために、分割画面の切り替えと、ディバイダーを指定比率の位置までドラッグする操作を行います。参照するのはウィンドウの種類と位置のみで、画面の文字や内容は読み取りません。</string>
+    <string name="a11y_service_description">指定した2つのアプリを分割画面で起動するために、分割画面の切り替えと、ディバイダーを指定比率の位置までドラッグする操作を行います。参照するのはウィンドウの種類・位置・アプリ名のみで、画面の文字や内容は読み取りません。</string>
 
     <string name="launch">分割して起動</string>
     <string name="create_shortcut">この組み合わせをホーム画面に追加</string>

@@ -38,6 +38,12 @@
             android:layout_marginTop="4dp"
             android:text="@string/swap" />
 
+        <CheckBox
+            android:id="@+id/landscapeReverseCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/landscape_reverse" />
+
         <!-- 右側アプリ -->
         <TextView
             style="@style/SectionTitle"

@@ -26,7 +26,23 @@ class Prefs(context: Context) {
             .getOrDefault(LaunchMode.SPLIT)
         set(v) = sp.edit().putString(KEY_MODE, v.name).apply()
 
+    /** 画面の向きごとに「分割の固定側が右/下になる」かどうか（自動検出結果） */
+    fun isDockReversed(rotation: Int): Boolean = sp.getBoolean("$KEY_DOCK_REVERSED$rotation", false)
+
+    fun setDockReversed(rotation: Int, reversed: Boolean) {
+        sp.edit().putBoolean("$KEY_DOCK_REVERSED$rotation", reversed).apply()
+    }
+
+    /** 横画面（回転90°/270°）で左右を反転するか */
+    var landscapeReversed: Boolean
+        get() = isDockReversed(1) || isDockReversed(3)
+        set(v) {
+            setDockReversed(1, v)
+            setDockReversed(3, v)
+        }
+
     private companion object {
+        const val KEY_DOCK_REVERSED = "dock_reversed_"
         const val KEY_LEFT = "left"
         const val KEY_RIGHT = "right"
         const val KEY_RATIO = "ratio"

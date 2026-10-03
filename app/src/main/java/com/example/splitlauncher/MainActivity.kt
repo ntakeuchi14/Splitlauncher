@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioButton
@@ -67,6 +68,13 @@ class MainActivity : AppCompatActivity() {
         setupMode()
 
         findViewById<Button>(R.id.swapButton).setOnClickListener { swap() }
+
+        // Android 12 以下の分割起動でのみ使う設定
+        val reverseCheck = findViewById<CheckBox>(R.id.landscapeReverseCheck)
+        reverseCheck.visibility =
+            if (android.os.Build.VERSION.SDK_INT < LaunchPairActivity.LEGACY_SPLIT_MAX_SDK_EXCLUSIVE) View.VISIBLE else View.GONE
+        reverseCheck.isChecked = prefs.landscapeReversed
+        reverseCheck.setOnCheckedChangeListener { _, checked -> prefs.landscapeReversed = checked }
         a11yButton.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
@@ -79,6 +87,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateA11yStatus()
+        // 自動判定で更新されている場合があるので表示を合わせる
+        findViewById<CheckBox>(R.id.landscapeReverseCheck).let {
+            if (it.isChecked != prefs.landscapeReversed) it.isChecked = prefs.landscapeReversed
+        }
     }
 
     override fun onDestroy() {
