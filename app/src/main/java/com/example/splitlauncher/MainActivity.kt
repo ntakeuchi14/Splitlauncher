@@ -82,7 +82,10 @@ class MainActivity : AppCompatActivity() {
         reverseCheck.isChecked = prefs.landscapeReversed
         reverseCheck.setOnCheckedChangeListener { _, checked -> prefs.landscapeReversed = checked }
         a11yButton.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            // 別タスクで開く（この画面は離れると閉じるため、同じタスクだと設定画面も一緒に閉じてしまう）
+            startActivity(
+                Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
         }
         launchButton.setOnClickListener { launch() }
         shortcutButton.setOnClickListener { createShortcut() }
@@ -103,6 +106,18 @@ class MainActivity : AppCompatActivity() {
         // 自動判定で更新されている場合があるので表示を合わせる
         findViewById<CheckBox>(R.id.landscapeReverseCheck).let {
             if (it.isChecked != prefs.landscapeReversed) it.isChecked = prefs.landscapeReversed
+        }
+    }
+
+    /**
+     * 画面から離れたらタスクごと閉じる。
+     * 車載HUなどのランチャーは、アプリのタスクが残っていると「分割N」をタップしても
+     * そのタスク（この設定画面）を前面に出すだけで、スロットの起動が行われないことがあるため。
+     */
+    override fun onStop() {
+        super.onStop()
+        if (!isChangingConfigurations && !isFinishing) {
+            finishAndRemoveTask()
         }
     }
 
