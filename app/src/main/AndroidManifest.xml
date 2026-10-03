@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 任意: adb で許可するとユーザー補助を自動で ON に戻せる（A11yEnabler 参照） -->
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
 
     <!-- Android 11+ のパッケージ可視性: ランチャーに表示されるアプリを列挙するため -->
     <queries>
@@ -7,6 +13,12 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- 別APKの「分割1〜5」アプリがインストールされているかの確認用 -->
+        <package android:name="com.example.splitlauncher.slot1" />
+        <package android:name="com.example.splitlauncher.slot2" />
+        <package android:name="com.example.splitlauncher.slot3" />
+        <package android:name="com.example.splitlauncher.slot4" />
+        <package android:name="com.example.splitlauncher.slot5" />
     </queries>
 
     <application
@@ -35,6 +47,12 @@
             android:resizeableActivity="true"
             android:taskAffinity=""
             android:theme="@style/Theme.SplitLauncher.Transparent" />
+
+        <!-- 別APKの「分割1〜5」アプリからの呼び出し口（スロット番号だけを受け付ける） -->
+        <activity-alias
+            android:name=".SlotEntry"
+            android:exported="true"
+            android:targetActivity=".LaunchPairActivity" />
 
         <!-- アプリ一覧に出す「分割1〜5」。保存されたスロットだけ有効化する -->
         <activity-alias

@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "SplitLauncher"
 include(":app")
+include(":slot")

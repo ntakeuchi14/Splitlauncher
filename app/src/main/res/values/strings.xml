@@ -19,6 +19,8 @@
     <string name="a11y_on">✓ 比率調整（ユーザー補助）: 有効</string>
     <string name="a11y_off">比率調整（ユーザー補助）: 無効 — 無効のままだと 1:1 で起動します</string>
     <string name="a11y_off_required">⚠ 分割起動（ユーザー補助）: 無効 — このAndroidバージョンでは、分割画面で起動するために必須です。下のボタンから「分割ランチャー 比率調整」をONにしてください</string>
+    <string name="a11y_auto_on">（自動ON: 許可済み — OFFになっても起動時に自動でONに戻します）</string>
+    <string name="a11y_auto_hint">（アプリを閉じるとOFFになる機種では、PCから「adb shell pm grant com.example.splitlauncher android.permission.WRITE_SECURE_SETTINGS」を1回実行すると自動でONに戻せます）</string>
     <string name="a11y_open_settings">ユーザー補助の設定を開く</string>
     <string name="a11y_service_label">分割ランチャー 比率調整</string>
     <string name="a11y_service_description">指定した2つのアプリを分割画面で起動するために、分割画面の切り替えと、ディバイダーを指定比率の位置までドラッグする操作を行います。参照するのはウィンドウの種類・位置・アプリ名のみで、画面の文字や内容は読み取りません。</string>
@@ -47,6 +49,7 @@
     <string name="slot_summary">%1$s | %2$s（%3$d:%4$d・%5$s）</string>
     <string name="slot_mode_split">分割画面</string>
     <string name="slot_mode_freeform">フリーフォーム</string>
+    <string name="slot_app_installed">別アプリ版をアプリ一覧に表示中</string>
     <string name="slot_save">保存</string>
     <string name="slot_clear">削除</string>
     <string name="slot_saved">分割%1$d に保存しました。アプリ一覧を確認してください</string>

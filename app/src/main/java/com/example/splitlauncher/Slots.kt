@@ -48,7 +48,21 @@ class SlotStore(private val context: Context) {
         setVisibleInLauncher(index, false)
     }
 
-    private fun setVisibleInLauncher(index: Int, visible: Boolean) {
+    /** 別APKの「分割N」アプリがインストールされているか */
+    fun isSlotAppInstalled(index: Int): Boolean = runCatching {
+        context.packageManager.getPackageInfo(slotAppPackage(index), 0)
+    }.isSuccess
+
+    /**
+     * 本体内の「分割N」（activity-alias）の表示状態を合わせる。
+     * 別APK版がインストールされていれば、アプリ一覧に重複して出ないよう本体内の方は隠す。
+     */
+    fun syncLauncherVisibility() {
+        for (i in 1..COUNT) setVisibleInLauncher(i, get(i) != null)
+    }
+
+    private fun setVisibleInLauncher(index: Int, wantVisible: Boolean) {
+        val visible = wantVisible && !isSlotAppInstalled(index)
         context.packageManager.setComponentEnabledSetting(
             aliasComponent(context, index),
             if (visible) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
@@ -59,7 +73,14 @@ class SlotStore(private val context: Context) {
 
     companion object {
         const val COUNT = 5
+        const val EXTRA_SLOT = "slot"
         private const val ALIAS_PREFIX = "com.example.splitlauncher.Slot"
+        private const val SLOT_ENTRY = "com.example.splitlauncher.SlotEntry"
+
+        fun slotAppPackage(index: Int) = "com.example.splitlauncher.slot$index"
+
+        /** 別APKの「分割N」アプリから呼ばれた入口か */
+        fun isSlotEntry(component: ComponentName?): Boolean = component?.className == SLOT_ENTRY
 
         fun aliasComponent(context: Context, index: Int) =
             ComponentName(context.packageName, "$ALIAS_PREFIX$index")

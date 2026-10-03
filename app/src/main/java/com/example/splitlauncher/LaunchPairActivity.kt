@@ -1,7 +1,6 @@
 package com.example.splitlauncher
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -25,8 +24,15 @@ class LaunchPairActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // アプリ一覧の「分割N」から起動された場合は、保存済みスロットの内容を使う
-        val slotIndex = SlotStore.indexOf(intent.component)
+        // アプリ一覧の「分割N」（本体内の別名、または別APKの分割Nアプリ）から起動された場合は、
+        // 保存済みスロットの内容を使う
+        val fromSlotApp = SlotStore.isSlotEntry(intent.component)
+        val slotIndex = if (fromSlotApp) {
+            intent.getIntExtra(SlotStore.EXTRA_SLOT, 0).takeIf { it in 1..SlotStore.COUNT }
+                ?: run { fail(getString(R.string.error_slot_empty)); return }
+        } else {
+            SlotStore.indexOf(intent.component)
+        }
         val slot = slotIndex?.let { SlotStore(this).get(it) }
         if (slotIndex != null && slot == null) {
             fail(getString(R.string.error_slot_empty))
@@ -73,16 +79,36 @@ class LaunchPairActivity : Activity() {
      * ユーザー補助サービスの「分割画面切替」操作で分割を開始する。手順はサービス側で実行する。
      */
     private fun launchSplitLegacy(left: ComponentName, right: ComponentName, ratio: Int) {
-        if (!DividerAccessibilityService.isRunning) {
-            Toast.makeText(this, R.string.error_a11y_required, Toast.LENGTH_LONG).show()
-            startActivity(
-                Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+        if (DividerAccessibilityService.isRunning) {
+            DividerAccessibilityService.startLegacySplit(left, right, ratio)
             finishQuietly()
             return
         }
-        DividerAccessibilityService.startLegacySplit(left, right, ratio)
+        // サービスが OFF でも、WRITE_SECURE_SETTINGS が許可されていれば自動で ON にして接続を待つ
+        if (A11yEnabler.enable(this)) {
+            waitForServiceThenSplit(left, right, ratio, deadline = System.currentTimeMillis() + A11Y_WAIT_MS)
+            return
+        }
+        showA11yRequired()
+    }
+
+    private fun waitForServiceThenSplit(left: ComponentName, right: ComponentName, ratio: Int, deadline: Long) {
+        when {
+            DividerAccessibilityService.isRunning -> {
+                DividerAccessibilityService.startLegacySplit(left, right, ratio)
+                finishQuietly()
+            }
+            System.currentTimeMillis() > deadline -> showA11yRequired()
+            else -> handler.postDelayed({ waitForServiceThenSplit(left, right, ratio, deadline) }, 100)
+        }
+    }
+
+    private fun showA11yRequired() {
+        Toast.makeText(this, R.string.error_a11y_required, Toast.LENGTH_LONG).show()
+        startActivity(
+            Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
         finishQuietly()
     }
 
@@ -112,10 +138,10 @@ class LaunchPairActivity : Activity() {
         val leftBounds = Rect(screen.left, screen.top, splitX, screen.bottom)
         val rightBounds = Rect(splitX, screen.top, screen.right, screen.bottom)
 
-        startActivity(appIntent(left), ActivityOptions.makeBasic().setLaunchBounds(leftBounds).toBundle())
+        startActivity(appIntent(left), Freeform.options(leftBounds))
         handler.postDelayed({
             runCatching {
-                startActivity(appIntent(right), ActivityOptions.makeBasic().setLaunchBounds(rightBounds).toBundle())
+                startActivity(appIntent(right), Freeform.options(rightBounds))
             }.onFailure { Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show() }
             finishQuietly()
         }, SECOND_LAUNCH_DELAY_MS)
@@ -161,6 +187,7 @@ class LaunchPairActivity : Activity() {
         private const val EXTRA_MODE = "mode"
 
         private const val SECOND_LAUNCH_DELAY_MS = 500L
+        private const val A11Y_WAIT_MS = 3000L
         private const val DIVIDER_DRAG_DELAY_MS = 1200L
 
         fun createIntent(

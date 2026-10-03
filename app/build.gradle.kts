@@ -15,6 +15,16 @@ android {
         versionName = "1.0"
     }
 
+    // 毎回同じ鍵で署名する（GitHub Actions のビルドごとに鍵が変わると上書きインストールできないため）
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

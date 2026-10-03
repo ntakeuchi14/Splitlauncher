@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- 左右2分割のウィンドウ + 番号 3 -->
+    <path android:fillColor="#FFFFFF" android:pathData="M34,30h18v26h-18z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.7" android:pathData="M56,30h18v26h-18z" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:strokeLineCap="round"
+        android:strokeLineJoin="round" android:pathData="M47,63 L61,63 L53,71 Q62,71 61,77 Q58,84 47,80" />
+</vector>

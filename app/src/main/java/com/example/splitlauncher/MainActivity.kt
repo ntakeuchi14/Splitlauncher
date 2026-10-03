@@ -102,22 +102,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // 強制停止などで OFF になっていた場合、許可があれば自動で ON に戻す
+        if (!DividerAccessibilityService.isRunning) A11yEnabler.enable(this)
+        // 別APKの「分割N」アプリが追加/削除されていれば、本体内の表示を合わせる
+        slotStore.syncLauncherVisibility()
+        renderSlots()
         updateA11yStatus()
         // 自動判定で更新されている場合があるので表示を合わせる
         findViewById<CheckBox>(R.id.landscapeReverseCheck).let {
             if (it.isChecked != prefs.landscapeReversed) it.isChecked = prefs.landscapeReversed
-        }
-    }
-
-    /**
-     * 画面から離れたらタスクごと閉じる。
-     * 車載HUなどのランチャーは、アプリのタスクが残っていると「分割N」をタップしても
-     * そのタスク（この設定画面）を前面に出すだけで、スロットの起動が行われないことがあるため。
-     */
-    override fun onStop() {
-        super.onStop()
-        if (!isChangingConfigurations && !isFinishing) {
-            finishAndRemoveTask()
         }
     }
 
@@ -247,13 +240,18 @@ class MainActivity : AppCompatActivity() {
         a11yStatus.visibility = if (splitMode) View.VISIBLE else View.GONE
         a11yButton.visibility = if (splitMode && !DividerAccessibilityService.isRunning) View.VISIBLE else View.GONE
         val legacy = android.os.Build.VERSION.SDK_INT < LaunchPairActivity.LEGACY_SPLIT_MAX_SDK_EXCLUSIVE
-        a11yStatus.setText(
+        val status = getString(
             when {
                 DividerAccessibilityService.isRunning -> R.string.a11y_on
                 legacy -> R.string.a11y_off_required
                 else -> R.string.a11y_off
             }
         )
+        a11yStatus.text = if (A11yEnabler.canAutoEnable(this)) {
+            status + "\n" + getString(R.string.a11y_auto_on)
+        } else {
+            status + "\n" + getString(R.string.a11y_auto_hint)
+        }
     }
 
     // ---- 起動 / ショートカット ----
@@ -308,8 +306,9 @@ class MainActivity : AppCompatActivity() {
 
             row.findViewById<ImageView>(R.id.slotIcon).setImageResource(SLOT_ICONS[index - 1])
             row.findViewById<TextView>(R.id.slotTitle).text = getString(R.string.slot_title, index)
+            val appNote = if (slotStore.isSlotAppInstalled(index)) "\n" + getString(R.string.slot_app_installed) else ""
             row.findViewById<TextView>(R.id.slotSummary).text = if (slot == null) {
-                getString(R.string.slot_empty)
+                getString(R.string.slot_empty) + appNote
             } else {
                 getString(
                     R.string.slot_summary,
@@ -318,7 +317,7 @@ class MainActivity : AppCompatActivity() {
                     slot.ratio,
                     100 - slot.ratio,
                     getString(if (slot.mode == LaunchMode.FREEFORM) R.string.slot_mode_freeform else R.string.slot_mode_split),
-                )
+                ) + appNote
             }
 
             row.findViewById<Button>(R.id.slotSave).apply {
