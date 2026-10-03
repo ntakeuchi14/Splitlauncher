@@ -205,8 +205,13 @@ class MainActivity : AppCompatActivity() {
         val splitMode = currentMode() == LaunchMode.SPLIT
         a11yStatus.visibility = if (splitMode) View.VISIBLE else View.GONE
         a11yButton.visibility = if (splitMode && !DividerAccessibilityService.isRunning) View.VISIBLE else View.GONE
+        val legacy = android.os.Build.VERSION.SDK_INT < LaunchPairActivity.LEGACY_SPLIT_MAX_SDK_EXCLUSIVE
         a11yStatus.setText(
-            if (DividerAccessibilityService.isRunning) R.string.a11y_on else R.string.a11y_off
+            when {
+                DividerAccessibilityService.isRunning -> R.string.a11y_on
+                legacy -> R.string.a11y_off_required
+                else -> R.string.a11y_off
+            }
         )
     }
 

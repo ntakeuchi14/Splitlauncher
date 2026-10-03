@@ -48,13 +48,40 @@ class LaunchPairActivity : Activity() {
         }
     }
 
+    private fun launchSplit(left: ComponentName, right: ComponentName, ratio: Int) {
+        if (Build.VERSION.SDK_INT < LEGACY_SPLIT_MAX_SDK_EXCLUSIVE) {
+            launchSplitLegacy(left, right, ratio)
+        } else {
+            launchSplitAdjacent(left, right, ratio)
+        }
+    }
+
     /**
-     * 標準の分割画面モード。
+     * Android 7〜12（API 24〜31）用。
+     * これらのバージョンでは FLAG_ACTIVITY_LAUNCH_ADJACENT は「既に分割画面のとき」しか効かないため、
+     * ユーザー補助サービスの「分割画面切替」操作で分割を開始する。手順はサービス側で実行する。
+     */
+    private fun launchSplitLegacy(left: ComponentName, right: ComponentName, ratio: Int) {
+        if (!DividerAccessibilityService.isRunning) {
+            Toast.makeText(this, R.string.error_a11y_required, Toast.LENGTH_LONG).show()
+            startActivity(
+                Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            finishQuietly()
+            return
+        }
+        DividerAccessibilityService.startLegacySplit(left, right, ratio)
+        finishQuietly()
+    }
+
+    /**
+     * Android 12L 以降（API 32〜）用の分割画面起動。
      * 1) 右側アプリを FLAG_ACTIVITY_LAUNCH_ADJACENT で起動 → このActivityと右アプリで分割画面になる
      * 2) このActivityの側（左/上）に左側アプリを起動して置き換える
      * 3) 比率は公開APIで指定できないため、ユーザー補助サービスが有効ならディバイダーをドラッグして調整
      */
-    private fun launchSplit(left: ComponentName, right: ComponentName, ratio: Int) {
+    private fun launchSplitAdjacent(left: ComponentName, right: ComponentName, ratio: Int) {
         startActivity(appIntent(right).addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT))
         handler.postDelayed({
             runCatching { startActivity(appIntent(left)) }
@@ -113,6 +140,9 @@ class LaunchPairActivity : Activity() {
     companion object {
         const val MIN_RATIO = 20
         const val MAX_RATIO = 80
+
+        /** これ未満（Android 12 以下）はユーザー補助による分割開始が必要 */
+        const val LEGACY_SPLIT_MAX_SDK_EXCLUSIVE = 32
 
         private const val EXTRA_LEFT = "left"
         private const val EXTRA_RIGHT = "right"
