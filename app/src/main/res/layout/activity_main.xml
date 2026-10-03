@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <!-- 左側アプリ -->
+        <TextView
+            style="@style/SectionTitle"
+            android:text="@string/label_left" />
+
+        <Spinner
+            android:id="@+id/leftSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp" />
+
+        <Button
+            android:id="@+id/swapButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:text="@string/swap" />
+
+        <!-- 右側アプリ -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_marginTop="4dp"
+            android:text="@string/label_right" />
+
+        <Spinner
+            android:id="@+id/rightSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp" />
+
+        <!-- 分割比率 -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_ratio" />
+
+        <TextView
+            android:id="@+id/ratioText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <SeekBar
+            android:id="@+id/ratioSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/previewLeft"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="50"
+                android:background="@drawable/preview_left" />
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="match_parent" />
+
+            <View
+                android:id="@+id/previewRight"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="50"
+                android:background="@drawable/preview_right" />
+        </LinearLayout>
+
+        <!-- 起動モード -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_mode" />
+
+        <RadioGroup
+            android:id="@+id/modeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/modeSplit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_split" />
+
+            <RadioButton
+                android:id="@+id/modeFreeform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_freeform" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/modeNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?attr/textAppearanceBodySmall" />
+
+        <TextView
+            android:id="@+id/a11yStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceBodySmall" />
+
+        <Button
+            android:id="@+id/a11yButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/a11y_open_settings" />
+
+        <!-- 実行 -->
+        <Button
+            android:id="@+id/launchButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:minHeight="56dp"
+            android:text="@string/launch" />
+
+        <Button
+            android:id="@+id/shortcutButton"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/create_shortcut" />
+    </LinearLayout>
+</ScrollView>
