@@ -4,10 +4,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioButton
@@ -41,6 +43,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var shortcutButton: Button
     private lateinit var progress: ProgressBar
 
+    private lateinit var slotStore: SlotStore
+    private lateinit var slotContainer: LinearLayout
+
     private var adapter: AppSpinnerAdapter? = null
     private val executor = Executors.newSingleThreadExecutor()
 
@@ -48,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         prefs = Prefs(this)
+        slotStore = SlotStore(this)
 
         leftSpinner = findViewById(R.id.leftSpinner)
         rightSpinner = findViewById(R.id.rightSpinner)
@@ -80,6 +86,13 @@ class MainActivity : AppCompatActivity() {
         }
         launchButton.setOnClickListener { launch() }
         shortcutButton.setOnClickListener { createShortcut() }
+        // ホーム画面のない端末（車載HUなど）ではショートカットボタンを隠す
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
+            shortcutButton.visibility = View.GONE
+        }
+
+        slotContainer = findViewById(R.id.slotContainer)
+        renderSlots()
 
         loadApps()
     }
@@ -137,6 +150,7 @@ class MainActivity : AppCompatActivity() {
         leftSpinner.onItemSelectedListener = saveListener
         rightSpinner.onItemSelectedListener = saveListener
         setUiEnabled(true)
+        renderSlots()
     }
 
     private fun selectedLeft(): AppInfo? = adapter?.getItem(leftSpinner.selectedItemPosition)
@@ -268,6 +282,55 @@ class MainActivity : AppCompatActivity() {
         ShortcutManagerCompat.requestPinShortcut(this, shortcut, null)
     }
 
+    // ---- スロット（アプリ一覧の「分割N」） ----
+
+    private fun renderSlots() {
+        slotContainer.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+        for (index in 1..SlotStore.COUNT) {
+            val row = inflater.inflate(R.layout.item_slot, slotContainer, false)
+            val slot = slotStore.get(index)
+
+            row.findViewById<ImageView>(R.id.slotIcon).setImageResource(SLOT_ICONS[index - 1])
+            row.findViewById<TextView>(R.id.slotTitle).text = getString(R.string.slot_title, index)
+            row.findViewById<TextView>(R.id.slotSummary).text = if (slot == null) {
+                getString(R.string.slot_empty)
+            } else {
+                getString(
+                    R.string.slot_summary,
+                    adapter?.labelOf(slot.left) ?: slot.left.packageName,
+                    adapter?.labelOf(slot.right) ?: slot.right.packageName,
+                    slot.ratio,
+                    100 - slot.ratio,
+                    getString(if (slot.mode == LaunchMode.FREEFORM) R.string.slot_mode_freeform else R.string.slot_mode_split),
+                )
+            }
+
+            row.findViewById<Button>(R.id.slotSave).apply {
+                isEnabled = adapter != null
+                setOnClickListener { saveSlot(index) }
+            }
+            row.findViewById<Button>(R.id.slotClear).apply {
+                isEnabled = slot != null
+                setOnClickListener {
+                    slotStore.clear(index)
+                    Toast.makeText(this@MainActivity, getString(R.string.slot_cleared, index), Toast.LENGTH_SHORT).show()
+                    renderSlots()
+                }
+            }
+            slotContainer.addView(row)
+        }
+    }
+
+    private fun saveSlot(index: Int) {
+        if (buildLaunchIntent() == null) return // 選択内容のチェック（同じアプリ等）
+        val l = selectedLeft() ?: return
+        val r = selectedRight() ?: return
+        slotStore.save(index, Slot(l.component, r.component, currentRatio(), currentMode()))
+        Toast.makeText(this, getString(R.string.slot_saved, index), Toast.LENGTH_LONG).show()
+        renderSlots()
+    }
+
     private fun setUiEnabled(enabled: Boolean) {
         listOf(leftSpinner, rightSpinner, launchButton, shortcutButton, findViewById<Button>(R.id.swapButton))
             .forEach { it.isEnabled = enabled }
@@ -275,5 +338,8 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val RATIO_STEP = 5
+        val SLOT_ICONS = intArrayOf(
+            R.mipmap.ic_slot1, R.mipmap.ic_slot2, R.mipmap.ic_slot3, R.mipmap.ic_slot4, R.mipmap.ic_slot5,
+        )
     }
 }

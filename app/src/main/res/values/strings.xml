@@ -35,4 +35,21 @@
     <string name="error_a11y_required">分割画面で起動するには、ユーザー補助の「分割ランチャー 比率調整」をONにしてください</string>
     <string name="error_split_failed">分割画面にできませんでした。左側のアプリが分割画面に対応していない可能性があります</string>
     <string name="error_shortcut_unsupported">お使いのホームアプリはショートカットの追加に対応していません</string>
+    <string name="slot1_label">分割1</string>
+    <string name="slot2_label">分割2</string>
+    <string name="slot3_label">分割3</string>
+    <string name="slot4_label">分割4</string>
+    <string name="slot5_label">分割5</string>
+    <string name="label_slots">アプリ一覧に登録（分割1〜5）</string>
+    <string name="slots_note">今選んでいる組み合わせ・比率・起動方法をスロットに保存すると、アプリ一覧に「分割N」が表示されます。反映まで少し時間がかかったり、ランチャーの再起動が必要な場合があります。</string>
+    <string name="slot_title">分割%1$d</string>
+    <string name="slot_empty">未登録（アプリ一覧に表示されません）</string>
+    <string name="slot_summary">%1$s | %2$s（%3$d:%4$d・%5$s）</string>
+    <string name="slot_mode_split">分割画面</string>
+    <string name="slot_mode_freeform">フリーフォーム</string>
+    <string name="slot_save">保存</string>
+    <string name="slot_clear">削除</string>
+    <string name="slot_saved">分割%1$d に保存しました。アプリ一覧を確認してください</string>
+    <string name="slot_cleared">分割%1$d を削除しました</string>
+    <string name="error_slot_empty">このスロットは未登録です。分割ランチャーで組み合わせを保存してください</string>
 </resources>

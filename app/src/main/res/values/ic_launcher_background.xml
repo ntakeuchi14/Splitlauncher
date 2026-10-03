@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#3D5AFE</color>
+    <color name="ic_slot1_background">#3D5AFE</color>
+    <color name="ic_slot2_background">#00897B</color>
+    <color name="ic_slot3_background">#F4511E</color>
+    <color name="ic_slot4_background">#8E24AA</color>
+    <color name="ic_slot5_background">#546E7A</color>
 </resources>

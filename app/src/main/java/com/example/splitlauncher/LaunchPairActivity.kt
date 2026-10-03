@@ -25,11 +25,22 @@ class LaunchPairActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val left = intent.getStringExtra(EXTRA_LEFT)?.let(ComponentName::unflattenFromString)
-        val right = intent.getStringExtra(EXTRA_RIGHT)?.let(ComponentName::unflattenFromString)
-        val ratio = intent.getIntExtra(EXTRA_RATIO, 50).coerceIn(MIN_RATIO, MAX_RATIO)
-        val mode = runCatching { LaunchMode.valueOf(intent.getStringExtra(EXTRA_MODE) ?: "") }
-            .getOrDefault(LaunchMode.SPLIT)
+        // アプリ一覧の「分割N」から起動された場合は、保存済みスロットの内容を使う
+        val slotIndex = SlotStore.indexOf(intent.component)
+        val slot = slotIndex?.let { SlotStore(this).get(it) }
+        if (slotIndex != null && slot == null) {
+            fail(getString(R.string.error_slot_empty))
+            return
+        }
+
+        val left = slot?.left
+            ?: intent.getStringExtra(EXTRA_LEFT)?.let(ComponentName::unflattenFromString)
+        val right = slot?.right
+            ?: intent.getStringExtra(EXTRA_RIGHT)?.let(ComponentName::unflattenFromString)
+        val ratio = (slot?.ratio ?: intent.getIntExtra(EXTRA_RATIO, 50)).coerceIn(MIN_RATIO, MAX_RATIO)
+        val mode = slot?.mode
+            ?: runCatching { LaunchMode.valueOf(intent.getStringExtra(EXTRA_MODE) ?: "") }
+                .getOrDefault(LaunchMode.SPLIT)
 
         if (left == null || right == null) {
             fail(getString(R.string.error_no_app))

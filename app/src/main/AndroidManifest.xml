@@ -36,6 +36,77 @@
             android:taskAffinity=""
             android:theme="@style/Theme.SplitLauncher.Transparent" />
 
+        <!-- アプリ一覧に出す「分割1〜5」。保存されたスロットだけ有効化する -->
+        <activity-alias
+            android:name=".Slot1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_slot1"
+            android:label="@string/slot1_label"
+            android:roundIcon="@mipmap/ic_slot1"
+            android:targetActivity=".LaunchPairActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Slot2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_slot2"
+            android:label="@string/slot2_label"
+            android:roundIcon="@mipmap/ic_slot2"
+            android:targetActivity=".LaunchPairActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Slot3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_slot3"
+            android:label="@string/slot3_label"
+            android:roundIcon="@mipmap/ic_slot3"
+            android:targetActivity=".LaunchPairActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Slot4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_slot4"
+            android:label="@string/slot4_label"
+            android:roundIcon="@mipmap/ic_slot4"
+            android:targetActivity=".LaunchPairActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Slot5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_slot5"
+            android:label="@string/slot5_label"
+            android:roundIcon="@mipmap/ic_slot5"
+            android:targetActivity=".LaunchPairActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <!-- 分割比率をディバイダーのドラッグで調整するためのユーザー補助サービス（任意） -->
         <service
             android:name=".DividerAccessibilityService"

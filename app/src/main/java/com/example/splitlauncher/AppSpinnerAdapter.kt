@@ -1,5 +1,6 @@
 package com.example.splitlauncher
 
+import android.content.ComponentName
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,9 @@ class AppSpinnerAdapter(
         view.findViewById<TextView>(R.id.appLabel).text = app.label
         return view
     }
+
+    fun labelOf(component: ComponentName): String =
+        apps.firstOrNull { it.component == component }?.label ?: component.packageName
 
     fun indexOf(flattenedComponent: String?): Int =
         apps.indexOfFirst { it.component.flattenToString() == flattenedComponent }

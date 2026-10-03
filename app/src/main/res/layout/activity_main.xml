@@ -155,6 +155,26 @@
             android:minHeight="56dp"
             android:text="@string/launch" />
 
+        <!-- アプリ一覧に登録するスロット -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_marginTop="28dp"
+            android:text="@string/label_slots" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/slots_note"
+            android:textAppearance="?attr/textAppearanceBodySmall" />
+
+        <LinearLayout
+            android:id="@+id/slotContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
         <Button
             android:id="@+id/shortcutButton"
             style="@style/Widget.Material3.Button.TonalButton"
