@@ -17,9 +17,10 @@
 
     <string name="a11y_on">✓ 比率調整（ユーザー補助）: 有効</string>
     <string name="a11y_off">比率調整（ユーザー補助）: 無効 — 無効のままだと 1:1 で起動します</string>
+    <string name="a11y_off_required">⚠ 分割起動（ユーザー補助）: 無効 — このAndroidバージョンでは、分割画面で起動するために必須です。下のボタンから「分割ランチャー 比率調整」をONにしてください</string>
     <string name="a11y_open_settings">ユーザー補助の設定を開く</string>
     <string name="a11y_service_label">分割ランチャー 比率調整</string>
-    <string name="a11y_service_description">分割画面の起動直後に、ディバイダーを指定した比率の位置までドラッグします。この操作以外の画面内容の読み取りや操作は行いません。</string>
+    <string name="a11y_service_description">指定した2つのアプリを分割画面で起動するために、分割画面の切り替えと、ディバイダーを指定比率の位置までドラッグする操作を行います。参照するのはウィンドウの種類と位置のみで、画面の文字や内容は読み取りません。</string>
 
     <string name="launch">分割して起動</string>
     <string name="create_shortcut">この組み合わせをホーム画面に追加</string>
@@ -30,5 +31,7 @@
     <string name="error_same_app">左右に別々のアプリを選択してください</string>
     <string name="error_app_not_found">アプリが見つかりません（アンインストールされた可能性があります）</string>
     <string name="error_launch_failed">起動に失敗しました: %1$s</string>
+    <string name="error_a11y_required">分割画面で起動するには、ユーザー補助の「分割ランチャー 比率調整」をONにしてください</string>
+    <string name="error_split_failed">分割画面にできませんでした。左側のアプリが分割画面に対応していない可能性があります</string>
     <string name="error_shortcut_unsupported">お使いのホームアプリはショートカットの追加に対応していません</string>
 </resources>
