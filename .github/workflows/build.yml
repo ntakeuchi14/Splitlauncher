@@ -28,9 +28,18 @@ jobs:
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Collect APKs
+        run: |
+          mkdir -p dist
+          cp "$(find app/build/outputs/apk -name '*.apk' | head -1)" dist/SplitLauncher.apk
+          for n in 1 2 3 4 5; do
+            cp "$(find slot/build/outputs/apk/slot${n} -name '*.apk' | head -1)" dist/Split${n}.apk
+          done
+          ls -l dist
+
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
           name: SplitLauncher-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: dist/*.apk
           if-no-files-found: error
